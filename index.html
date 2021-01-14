@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+	<meta charset="UTF-8">
+	<title>Drawing Play</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel='stylesheet' href='bootstrap.min.css'><link rel='stylesheet' href='color_setup.css'>
+	<style>
+	body {
+	margin: 0;
+}
+
+* {
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	font-family: 'Hind Guntur', sans-serif;
+}
+
+#buttonBar {
+	width: 100%;
+	hieght: 50px;
+	padding: 10px;
+	position: fixed;
+	top: 0;
+	background-color: white;
+	color: #000000;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+#rad {
+	font-size: 25px;
+	float: left;
+}
+
+.radiusControl {
+	width: 40px;
+	hieght: 10px;
+	margin-bottom : 5px;
+	background-color: #888888;
+	display: inline-block;
+	padding-right: 8px;
+	padding-left: 8px;
+	text-align: center;
+}
+
+#colors {
+	float: right;
+}
+
+.pallete {
+	width: 40px;
+	height: 40px;
+	border-radius:20px;
+	box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.5), 0px 2px 2px rgba(0, 0, 0 , 0.5);
+	display: inline-block;
+	margin-left: 10px;
+}
+
+.pallete.active {
+	border: 2px solid #B71515;
+	box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.5);
+}
+	</style>
+<body>
+	
+	<div id="buttonBar">
+		<div id="rad">
+			Pencil Size =
+			<button id="decrement" class="btn btn-default radiusControl fa fa-minus"style="width:100px; color: black; background-color: grey">-</button>
+			<span id="val">10</span>
+			<button id="increment" class="btn btn-default radiusControl fa fa-plus"style="width:100px; color: black; background-color: grey">+</button>
+			<a href="index.html"><button style="width:110px; color: black; background-color: grey">all clear</button></a>
+		</div>
+		<div id="colors">
+			<div class="pallete active" style="background-color: black"></div>
+			<div class="pallete" style="background-color: white"></div>
+			<div class="pallete" style="background-color: grey"></div>
+			<div class="pallete" style="background-color: red"></div>
+			<div class="pallete" style="background-color: blue"></div>
+			<div class="pallete" style="background-color: green"></div>
+			<div class="pallete" style="background-color: violet"></div>
+			<div class="pallete" style="background-color: indigo"></div>
+			<div class="pallete" style="background-color: yellow"></div>
+			<div class="pallete" style="background-color: orange"></div>
+			<div class="pallete" style="background-color: #A6FC26"></div>
+		</div>
+	</div>
+	<canvas id="paint"></canvas>
+
+
+
+  <script >var canvas = document.getElementById('paint');
+	var ctx = canvas.getContext("2d");
+	
+	canvas.width = window.innerWidth; 
+	canvas.height = window.innerHeight; 
+	
+	window.onresize = function() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
+	
+	var radius = 10;
+	var mouseDrag = false;
+	
+	var putPoint = function(e) { 
+	
+		if (mouseDrag) {
+	
+			ctx.lineWidth = radius * 2;
+			ctx.lineTo(e.clientX, e.clientY); 
+		
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.arc(e.clientX, e.clientY, radius, 0, Math.PI * 2, true);
+		
+			ctx.fill();
+			ctx.beginPath(); 
+		
+			ctx.moveTo(e.clientX, e.clientY);
+		}
+	
+	}
+	
+	var doDraw = function(e) {
+		mouseDrag = true;
+		putPoint(e);
+	
+	}
+	
+	var dontDraw = function() { 
+		mouseDrag = false;
+		ctx.beginPath(); 
+	
+	}
+	
+	canvas.addEventListener('mousedown', doDraw) 
+	canvas.addEventListener('mousemove', putPoint); 
+	canvas.addEventListener('mouseup', dontDraw); 
+	
+	var minimumRadius = 0.05,  
+		maximumRadius = 1000, 
+		defaultRadius = 10, 
+		interval = 5,
+		radVal = document.getElementById('val'),
+		decRad = document.getElementById('decrement'),
+		incRad = document.getElementById('increment');
+	
+	var setRadius = function(newRadius) {
+		if (newRadius < minimumRadius) {
+			newRadius = minimumRadius;
+		} else if (newRadius > maximumRadius) {
+			newRadius = maximumRadius;
+		}
+		radius = newRadius;
+		if (radius == minimumRadius) {
+			interval = 0.95; //on increase set radius = 1
+		} else if (radius >= 1 && radius < 5) {
+			interval = 1;
+		} else if (radius >= 5 && radius < maximumRadius) {
+			interval = 5.00; 
+		}
+		ctx.lineWidth = radius * 2;
+		radVal.innerHTML = radius;
+	
+	}
+	
+	decRad.addEventListener('click', function() {
+		setRadius(radius - interval);
+	});
+	
+	incRad.addEventListener('click', function() {
+		setRadius(radius + interval);
+	});
+	
+	setRadius(10);
+	
+	var swatches = document.getElementsByClassName('pallete');
+	
+	for (var i = 0; i < swatches.length; i++) {
+		swatches[i].addEventListener('click', setSwatch); 
+	}
+	
+	var setColors = function setColor(color) {
+	
+		ctx.fillStyle = color;
+		ctx.strokeStyle = color;
+		var active = document.getElementsByClassName('active')[0]; 
+		if (active) {
+			active.className = 'pallete';
+		}
+	
+	}
+	
+	function setSwatch(e) {
+		var pallete = e.target;
+		setColors(pallete.style.backgroundColor);
+		pallete.className += ' active'; 
+	}</script>
+</body>
+</body>
+</html>
